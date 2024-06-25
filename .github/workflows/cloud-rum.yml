@@ -1,0 +1,106 @@
+name: intellihack-research-agent-cloud-run
+
+on:
+  push:
+    branches:
+      - main # Trigger deployment on push to the main branch
+
+jobs:
+  integration:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      # Create .env file with environment variables
+      - name: Create .env file
+        run: |
+          echo PROJECT_ID=${{ secrets.PROJECT_ID }} >> .env
+          echo REGION=${{ secrets.REGION }} >> .env
+          echo INSTANCE_NAME=${{ secrets.INSTANCE_NAME }} >> .env
+          echo INSTANCE_CONNECTION_NAME=${{ secrets.PROJECT_ID }}:${{ secrets.REGION }}:${{ secrets.INSTANCE_NAME }} >> .env
+          echo DB_USER=${{ secrets.DB_USER }} >> .env
+          echo DB_PASS=${{ secrets.DB_PASS }} >> .env
+          echo DB_NAME=${{ secrets.DB_NAME }} >> .env
+          echo PRIVATE_IP=${{ secrets.PRIVATE_IP }} >> .env
+          echo OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }} >> .env
+          echo BUCKET_NAME=${{ secrets.BUCKET_NAME }} >> .env
+          echo SERPER_API_KEY=${{ secrets.SERPER_API_KEY }} >> .env
+
+      # Save .env file as artifact
+      - name: Upload .env file
+        uses: actions/upload-artifact@v3
+        with:
+          name: env-file
+          path: .env
+
+  build-and-push-gcr-image:
+    name: Build and Push Docker Image
+    needs: integration
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Download .env file
+        uses: actions/download-artifact@v3
+        with:
+          name: env-file
+          path: .
+
+      # Authenticate with Google Cloud
+      - id: "auth"
+        uses: "google-github-actions/auth@v1"
+        with:
+          credentials_json: "${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}"
+
+      # Setup gcloud CLI/SDK
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v0.2.0
+
+      - name: Decode and save service account key
+        run: echo "${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}" | base64 --decode > ./gcloud-service-key.json
+        shell: bash
+
+      - name: Authenticate Docker
+        run: |
+          gcloud auth configure-docker --quiet
+
+      - name: Build and push Docker image
+        run: |
+          IMAGE=gcr.io/${{ secrets.PROJECT_ID }}/intellihack-research-agent:$GITHUB_SHA
+          docker build -t $IMAGE .
+          docker push $IMAGE
+
+  continuous-deployment:
+    name: Continuous Deployment
+    needs: [integration, build-and-push-gcr-image]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      # Authenticate with Google Cloud
+      - id: "auth"
+        uses: "google-github-actions/auth@v1"
+        with:
+          credentials_json: "${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}"
+
+      # Setup gcloud CLI/SDK
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v0.2.0
+
+      - name: Deploy to Cloud Run
+        run: |
+          IMAGE=gcr.io/${{ secrets.PROJECT_ID }}/intellihack-research-agent:$GITHUB_SHA
+          gcloud run deploy intellihack-research-agent \
+            --image $IMAGE \
+            --region ${{ secrets.REGION }} \
+            --platform managed \
+            --allow-unauthenticated \
+            --port 8000 \
+            --set-env-vars PROJECT_ID=${{ secrets.PROJECT_ID }},REGION=${{ secrets.REGION }},DB_USER=${{ secrets.DB_USER }},DB_PASS=${{ secrets.DB_PASS }},DB_NAME=${{ secrets.DB_NAME }},GOOGLE_APPLICATION_CREDENTIALS=/app/keys/service_account.json \
+            --project ${{ secrets.PROJECT_ID }}
