@@ -30,3 +30,7 @@ def delete_configuration(projectName: str, db: Session = Depends(get_db)):
 @router.get("/execute/{projectName}", response_model=agentConfiguration_schema.CustomResponse)
 def execute_configuration(projectName: str, db: Session = Depends(get_db)):
     return agentConfiguration.execute_configuration(projectName, db)
+
+@router.get("/projects/{user_id}")
+def get_projects(user_id: int, db: Session = Depends(get_db)):
+    return agentConfiguration.get_projects(user_id, db)
