@@ -3,6 +3,11 @@ python-multipart
 openai
 fastapi
 tiktoken
+accelerate
+bitsandbytes
+faiss_cpu
+ctransformers
+sentence_transformers
 unstructured
 python-dotenv
 langchain-openai
@@ -16,3 +21,4 @@ pg8000==1.31.2
 SQLAlchemy==2.0.30
 passlib==1.7.4
 python-jose==3.3.0
+langsmith
