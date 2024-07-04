@@ -103,7 +103,7 @@ jobs:
             --region ${{ secrets.REGION }} \
             --platform managed \
             --allow-unauthenticated \
-            --memory 2Gi \
+            --memory 1Gi \
             --port 8000 \
             --set-env-vars PROJECT_ID=${{ secrets.PROJECT_ID }},REGION=${{ secrets.REGION }},DB_USER=${{ secrets.DB_USER }},DB_PASS=${{ secrets.DB_PASS }},DB_NAME=${{ secrets.DB_NAME }},GOOGLE_APPLICATION_CREDENTIALS=/app/keys/service_account.json \
             --project ${{ secrets.PROJECT_ID }}
