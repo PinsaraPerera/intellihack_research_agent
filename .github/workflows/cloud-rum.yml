@@ -27,6 +27,8 @@ jobs:
           echo OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }} >> .env
           echo BUCKET_NAME=${{ secrets.BUCKET_NAME }} >> .env
           echo SERPER_API_KEY=${{ secrets.SERPER_API_KEY }} >> .env
+          echo LANGCHAIN_TRACING_V2=true >> .env
+          echo LANGCHAIN_API_KEY=${{ secrets.LANGCHAIN_API_KEY }} >> .env
 
       # Save .env file as artifact
       - name: Upload .env file
@@ -101,6 +103,7 @@ jobs:
             --region ${{ secrets.REGION }} \
             --platform managed \
             --allow-unauthenticated \
+            --memory 2Gi \
             --port 8000 \
             --set-env-vars PROJECT_ID=${{ secrets.PROJECT_ID }},REGION=${{ secrets.REGION }},DB_USER=${{ secrets.DB_USER }},DB_PASS=${{ secrets.DB_PASS }},DB_NAME=${{ secrets.DB_NAME }},GOOGLE_APPLICATION_CREDENTIALS=/app/keys/service_account.json \
             --project ${{ secrets.PROJECT_ID }}
