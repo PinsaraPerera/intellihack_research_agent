@@ -23,11 +23,14 @@ class QuizGeneratingTask:
             description=(
                 f"""
             Generate {number_of_questions} multiple-choice questions (MCQs) with four options each. 
-            The questions should cover the entire content of our database, adhering strictly to the given syllabus. 
-            Ensure the questions are simple, easy to understand, and derived from the syllabus using the provided tool.
-            Only generate valid questions that are relevant to the syllabus.
+            Cover the entire content of our database according to the syllabus. Ensure questions are simple, easy to understand, and derived strictly from the syllabus.
 
-            number_of_questions: {number_of_questions} needed to be generated.
+            Constraints:
+            1. Number of questions must be {number_of_questions}.
+            2. Use the 'search_data_from_vector_database' tool at least 5 times with different queries.
+            3. First search for topics. And then search for each topic to create questions.
+            3. Check the validity of response.
+            4. DO NOT USE METADATA, AUTHOR DETAILS, PUBLICATIONS DETAILS OR ANY OTHER IRRELEVANT DETAILS TO CREATE QUESTIONS.
             """
             ),
             expected_output=(
@@ -45,18 +48,17 @@ class QuizGeneratingTask:
         return Task(
             description=(
                 f"""
-            Make sure the quesions generated are relevant to the syllabus. Do not include any metadata of the documents,
-            author details, publication dates, etc. Only focus on the content of the syllabus. Don't create same type of
-            questions again and again. Make sure the questions are unique and meaningful. Use the provided tool to generate
-            questions and validate the output.
-            Validate and format the generated MCQ output to ensure it is in valid JSON format.
-            The format is as follows:
+            Ensure the questions are unique and meaningful. Use the provided tool to generate and validate the MCQs.
+            Validate and format the output to ensure it is a valid JSON object. Adhere strictly to the following format:
+            Do not wrapped the output with ```json ``` and also do not use ``` anywhere. Strickly follow the below format only.
+            All properties must enclosed in double quotes.
+
             format: {self.format}
             """
             ),
             expected_output=(
                 f"""
-            A well-formatted JSON output as specified.
+            A well-formatted JSON output as specified. All the properties must be enclosed in double quotes.
             """
             ),
             agent=agent,

@@ -11,7 +11,7 @@ sentence_transformers
 unstructured
 python-dotenv
 langchain-openai
-crewai
+crewai==0.35.7
 crewai[tools]
 google-cloud-storage
 cloud-sql-python-connector==1.9.2

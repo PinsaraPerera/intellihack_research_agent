@@ -1,7 +1,26 @@
 from langchain.agents import tool
-from .createVectorDB import search_vector_db
 
-class QuizGeneratingToolset():
+
+class QuizGeneratingToolset:
+    current_instance = None
+
+    def __init__(self, user_email, vectorstore):
+        self.user_email = user_email
+        self.vectorstore = vectorstore
+        QuizGeneratingToolset.current_instance = self
+
+    def search_data_from_database(self, query: str):
+        """Function to search the data from the vector database."""
+        if self.vectorstore:
+            results = self.vectorstore.search(
+                query=query, search_type="similarity", k=5
+            )
+            if results:
+                return results[0].page_content
+            return ""
+        return ""
+
+    @staticmethod
     @tool
     def search_data_from_vector_database(query: str):
         """
@@ -10,13 +29,16 @@ class QuizGeneratingToolset():
         just try query like for search contents, topics to get the idea of the data in the database.
         """
 
-        results = search_vector_db(query)
+        toolset = QuizGeneratingToolset.current_instance
+        results = toolset.search_data_from_database(query)
         return results
 
+    @staticmethod
     @tool
     def search_sample_output_format(query: str):
         """This returns a sample output format for the generated questions, options and correct answer"""
-        return {
+        return """
+        {
             "questions": [
                 {
                     "question": "qeustion1",
@@ -30,10 +52,10 @@ class QuizGeneratingToolset():
                 },
             ]
         }
+        """
 
-
-    def tools():
+    def tools(self):
         return [
             QuizGeneratingToolset.search_data_from_vector_database,
-            QuizGeneratingToolset.search_sample_output_format
+            QuizGeneratingToolset.search_sample_output_format,
         ]

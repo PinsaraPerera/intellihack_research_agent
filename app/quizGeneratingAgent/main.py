@@ -1,9 +1,15 @@
-from quizGeneratingAgent.agents import QuizGeneratingAgent
-from quizGeneratingAgent.tasks import QuizGeneratingTask
+from .agents import QuizGeneratingAgent
+from .tasks import QuizGeneratingTask
+from app.core.createVectorDB import download_vector_db
 from crewai import Crew
+import json
 
-def main(no_of_questions: int):
-    agents = QuizGeneratingAgent()
+def main(no_of_questions, user_email):
+
+    # create vectorstore
+    vectorstore = download_vector_db(user_email=user_email)
+
+    agents = QuizGeneratingAgent(user_email=user_email, vectorstore=vectorstore)
     tasks = QuizGeneratingTask()
 
     # create agents
@@ -27,7 +33,10 @@ def main(no_of_questions: int):
     result = crew.kickoff()
 
     print("####################################")
-    print(result)
+    result_response = json.dumps(result)
+    print(result_response)
+
+    return result
 
 # if __name__ == "__main__":
 #     main(no_of_questions=5)
