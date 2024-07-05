@@ -29,6 +29,7 @@ jobs:
           echo SERPER_API_KEY=${{ secrets.SERPER_API_KEY }} >> .env
           echo LANGCHAIN_TRACING_V2=true >> .env
           echo LANGCHAIN_API_KEY=${{ secrets.LANGCHAIN_API_KEY }} >> .env
+          echo BROWSERLESS_API_KEY=${{ secrets.BROWSERLESS_API_KEY }} >> .env
 
       # Save .env file as artifact
       - name: Upload .env file
