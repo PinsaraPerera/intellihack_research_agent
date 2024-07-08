@@ -9,7 +9,6 @@ This is the research agent powered UP with most capable GPT-4o model to do the r
 - [Installation](#installation)
 - [Configuration](#configuration)
 - [Running the Application](#running-the-application)
-- [API Documentation](#api-documentation)
 - [License](#license)
 
 ## Introduction
