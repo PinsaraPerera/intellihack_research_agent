@@ -1,4 +1,4 @@
-name: intellihack-research-agent-cloud-run
+name: research-agent-cloud-run
 
 on:
   push:
@@ -73,7 +73,7 @@ jobs:
 
       - name: Build and push Docker image
         run: |
-          IMAGE=gcr.io/${{ secrets.PROJECT_ID }}/intellihack-research-agent:$GITHUB_SHA
+          IMAGE=gcr.io/${{ secrets.PROJECT_ID }}/research-agent:$GITHUB_SHA
           docker build -t $IMAGE .
           docker push $IMAGE
 
@@ -98,8 +98,8 @@ jobs:
 
       - name: Deploy to Cloud Run
         run: |
-          IMAGE=gcr.io/${{ secrets.PROJECT_ID }}/intellihack-research-agent:$GITHUB_SHA
-          gcloud run deploy intellihack-research-agent \
+          IMAGE=gcr.io/${{ secrets.PROJECT_ID }}/research-agent:$GITHUB_SHA
+          gcloud run deploy research-agent \
             --image $IMAGE \
             --region ${{ secrets.REGION }} \
             --platform managed \
